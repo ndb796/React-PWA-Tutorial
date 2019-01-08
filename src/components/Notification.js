@@ -1,6 +1,7 @@
 import React from 'react';
-import {Card, CardTitle, CardText} from 'material-ui/Card';
+import {Card, CardHeader} from 'material-ui/Card';
 import firebase from 'firebase';
+import { Snackbar } from 'material-ui';
 
 var config = {
     apiKey: "AIzaSyC6v4IxtnSSxhdkT3rRBrBd5jneQuOEz2Q",
@@ -20,11 +21,18 @@ class Notification extends React.Component {
             Notification.firebaseApp = firebase.initializeApp(config);
         }
         this.state = {
-            token: ''
+            token: '',
+            toast: false,
+            message: ''
         };
     }
 
-    handleMessage = () => {}
+    handleMessage = ({notification: {title = 'Title', body = 'body'} = {}}) => {
+        this.setState({
+            toast: true,
+            message: `${title}: ${body}`
+        })
+    }
 
     componentDidMount() {
         const messaging = firebase.messaging();
@@ -35,9 +43,21 @@ class Notification extends React.Component {
     }
 
     render() {
+        const subtitleStyle = {
+            wordWrap: 'break-word',
+            wordBreak: 'break-all',
+            hyphens: 'auto',
+            padding: '10px'
+        }
         return (
             <div>
-                Notification {this.state.token}
+                <Card>
+                    <CardHeader title={'Token'} subtitle={this.state.token} subtitleStyle={subtitleStyle}/>
+                </Card>
+                <Snackbar open={this.state.toast}
+                    message={this.state.message}
+                    autoHideDuration={4000}
+                    onRequestClose={() => this.setState({toast: false})}/>
             </div>
         )
     }
